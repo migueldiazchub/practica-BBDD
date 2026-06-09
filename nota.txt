@@ -1,4 +1,20 @@
 driver mysql:
     npm i mysql
 
-    
+sql relevante 
+
+1. insertar alumno
+    INSERT INTO
+
+2. borrar alumno
+    DELETE
+
+3. editar alumno
+    UPDATE
+
+4. listar
+    SELECT * ... ORDER BY ap1, ap2, nombre
+
+5. buscar 
+    {listar}
+    WHERE {parametros}
