@@ -1,3 +1,4 @@
+-- ejemplo de creación de base de datos con alumnos
 CREATE DATABASE IF NOT EXISTS practicaAlumnos;
 USE practicaAlumnos;
 

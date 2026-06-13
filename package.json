@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "luxon": "^3.7.2",
     "mysql": "^2.18.1"
   }
 }
