@@ -338,6 +338,7 @@ async function insertarAlumno(
     ],
     (error, results) => {
       if (error) {
+        console.log(error);
         console.log("!! Ha ocurrido un error");
       } else {
         console.log("Los datos se han introducido con éxito");
@@ -347,6 +348,33 @@ async function insertarAlumno(
 }
 
 //2 borrar alumno, por dni, confirmar borrado
+async function confirmarAccion(mensaje) {
+  const confirmar = await input(mensaje + " (s para sí, n para no)\n> ");
+  if (
+    confirmar == "s" ||
+    confirmar == "si" ||
+    confirmar == "sí" ||
+    confirmar == "y" ||
+    confirmar == "yes" ||
+    confirmar == "true" ||
+    confirmar == "1"
+  ) {
+    return true;
+  } else if (
+    confirmar == "n" ||
+    confirmar == "no" ||
+    confirmar == "false" ||
+    confirmar == "0"
+  ) {
+    return false;
+  } else {
+    console.log(
+      "!! No se reconoce la opción. La acción se va a cancelar por defecto",
+    );
+    return false;
+  }
+}
+
 async function borrarAlumno(dni) {
   await connection.query(
     "DELETE FROM Alumnos WHERE dni = ?",
@@ -354,8 +382,9 @@ async function borrarAlumno(dni) {
     (error, results) => {
       if (error) {
         console.log(error);
+        console.log("!! Ha ocurrido un error");
       } else {
-        console.log("ok");
+        console.log("El alumno ha sido borrado de la base de datos");
       }
     },
   );
@@ -369,8 +398,9 @@ async function actualizarAlumno(campo, valor, dni) {
     (error, results) => {
       if (error) {
         console.log(error);
+        console.log("!! Ha ocurrido un error");
       } else {
-        console.log("ok");
+        console.log(`El campo de ${campo} del alumno se ha actualizado`);
       }
     },
   );
@@ -458,12 +488,21 @@ async function menuPrincipal() {
         // borrar alumno, por dni, confirmar borrado
         try {
           const borrar_dni = await input(
-            'Introduce el dni del alumno a borrar\n(Escribe "cancelar" para anular la acción)\n> ',
+            '\nIntroduce el dni del alumno a borrar\n(Escribe "cancelar" para anular la acción)\n> ',
           );
           if (borrar_dni == "cancelar") {
             break;
           }
-          await borrarAlumno(borrar_dni);
+
+          const alumno_borrado = await selectPorFiltro("DNI", borrar_dni);
+          console.log("\nSe van a borrar los datos del siguiente alumno: ");
+          mostrarAlumno(alumno_borrado[0]);
+
+          if (
+            await confirmarAccion("\n¿Confirmar la eliminación del alumno?")
+          ) {
+            await borrarAlumno(borrar_dni);
+          }
         } catch (error) {
           console.log(error);
           console.log("!! Se ha producido un error");
@@ -472,15 +511,29 @@ async function menuPrincipal() {
 
       case "3":
         // editar alumno, por dni, pedir y cambiar campos o meter todos los campos, confirmar edición
-        const editar_campo = await input(
-          'campo a editar\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
-        const editar_valor = await input(
-          'valor nuevo\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
         const editar_dni = await input(
-          'dni a editar\n(Escribe "cancelar" para anular la acción)\n> ',
+          'Introduce el dni del alumno a editar\n(Escribe "cancelar" para anular la acción)\n> ',
         );
+        if (editar_dni == "cancelar") {
+          break;
+        }
+
+        const alumno_editado = await selectPorFiltro("DNI", editar_dni);
+        mostrarAlumno(alumno_editado[0]);
+
+        const editar_campo = await input(
+          'Introduce el campo a editar\n(Escribe "cancelar" para anular la acción)\n> ',
+        );
+        if (editar_campo == "cancelar") {
+          break;
+        }
+
+        const editar_valor = await input(
+          'Introduce el nuevo valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
+        );
+        if (editar_valor == "cancelar") {
+          break;
+        }
 
         await actualizarAlumno(editar_campo, editar_valor, editar_dni);
         break;
@@ -488,6 +541,7 @@ async function menuPrincipal() {
       case "4":
         // listar, ordenada por ap1 ap2 nombre
         const lista_completa = await selectAllAlumnos();
+        console.log("\nLista completa de todos los alumnos: ");
         for (let alumno of lista_completa) {
           mostrarAlumno(alumno);
         }
@@ -496,10 +550,10 @@ async function menuPrincipal() {
       case "5":
         // buscar, por filtro
         const filtrar_campo = await input(
-          'campo a filtrar\n(Escribe "cancelar" para anular la acción)\n> ',
+          'Escribe el campo por el que quieres filtrar\n(Escribe "cancelar" para anular la acción)\n> ',
         );
         const filtrar_valor = await input(
-          'valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
+          'Escribe el valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
         );
 
         const alumnos_filtrados = await selectPorFiltro(
