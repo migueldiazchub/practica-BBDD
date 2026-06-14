@@ -21,6 +21,20 @@ const connection = mysql.createConnection({
 });
 
 //1 insertar alumno, confirmar inserción
+function comprobarFormatoDNI(dni) {
+  if (dni.length != 9) {
+    console.log("\n!! Formato de DNI no válido");
+    return false;
+  } else {
+    let letra = dni[8];
+    if (!isNaN(parseInt(letra))) {
+      console.log("\n!! Formato de DNI no válido");
+      return false;
+    } else {
+      return true;
+    }
+  }
+}
 
 async function formularioInsercion() {
   const datosInsercion = [];
@@ -35,18 +49,11 @@ async function formularioInsercion() {
       return null;
     }
 
-    if (nuevo_dni.length != 9) {
-      console.log("!! Formato no válido");
+    if (!comprobarFormatoDNI(nuevo_dni)) {
       continue;
     } else {
-      let letra = nuevo_dni[8];
-      if (!isNaN(parseInt(letra))) {
-        console.log("!! Formato no válido");
-        continue;
-      } else {
-        datosInsercion.push(nuevo_dni);
-        siguiente = true;
-      }
+      datosInsercion.push(nuevo_dni);
+      siguiente = true;
     }
   }
 
@@ -61,7 +68,7 @@ async function formularioInsercion() {
     }
 
     if (nuevo_nombre.trim() == "") {
-      console.log("!! El campo no puede quedar vacío");
+      console.log("\n!! El campo no puede quedar vacío");
       continue;
     } else {
       datosInsercion.push(nuevo_nombre.trim());
@@ -80,7 +87,7 @@ async function formularioInsercion() {
     }
 
     if (nuevo_apellido1.trim() == "") {
-      console.log("!! El campo no puede quedar vacío");
+      console.log("\n!! El campo no puede quedar vacío");
       continue;
     } else {
       datosInsercion.push(nuevo_apellido1.trim());
@@ -99,7 +106,7 @@ async function formularioInsercion() {
     }
 
     if (nuevo_apellido2.trim() == "") {
-      console.log("!! El campo no puede quedar vacío");
+      console.log("\n!! El campo no puede quedar vacío");
       continue;
     } else {
       datosInsercion.push(nuevo_apellido2.trim());
@@ -120,16 +127,16 @@ async function formularioInsercion() {
     nuevo_año = nuevo_año.trim();
 
     if (nuevo_año.length != 4) {
-      console.log("!! No es un año válido");
+      console.log("\n!! No es un año válido");
       continue;
     }
     if (isNaN(parseInt(nuevo_año))) {
-      console.log("!! No es un año válido");
+      console.log("\n!! No es un año válido");
       continue;
     }
     const diferencia_años = dt.now().year - nuevo_año;
     if (diferencia_años < 18) {
-      console.log("!! No es un año válido");
+      console.log("\n!! No es un año válido");
       continue;
     }
 
@@ -149,15 +156,15 @@ async function formularioInsercion() {
     nuevo_mes = nuevo_mes.trim();
 
     if (nuevo_mes.length != 1 && nuevo_mes.length != 2) {
-      console.log("!! No es un mes válido");
+      console.log("\n!! No es un mes válido");
       continue;
     }
     if (isNaN(parseInt(nuevo_mes))) {
-      console.log("!! No es un mes válido");
+      console.log("\n!! No es un mes válido");
       continue;
     }
     if (nuevo_mes < 1 || nuevo_mes > 12) {
-      console.log("!! No es un mes válido");
+      console.log("\n!! No es un mes válido");
       continue;
     }
 
@@ -181,15 +188,15 @@ async function formularioInsercion() {
     nuevo_dia = nuevo_dia.trim();
 
     if (nuevo_dia.length != 1 && nuevo_dia.length != 2) {
-      console.log("!! No es un día válido");
+      console.log("\n!! No es un día válido");
       continue;
     }
     if (isNaN(parseInt(nuevo_dia))) {
-      console.log("!! No es un día válido");
+      console.log("\n!! No es un día válido");
       continue;
     }
     if (nuevo_dia < 1 || nuevo_dia > dias_mes) {
-      console.log("!! No es un día válido");
+      console.log("\n!! No es un día válido");
       continue;
     }
 
@@ -223,13 +230,13 @@ async function formularioInsercion() {
     nuevo_especialidad = nuevo_especialidad.toUpperCase();
 
     if (nuevo_especialidad.trim() == "") {
-      console.log("!! El campo no puede quedar vacío");
+      console.log("\n!! El campo no puede quedar vacío");
       continue;
     } else if (
       nuevo_especialidad.trim() != "DAM" &&
       nuevo_especialidad.trim() != "DAW"
     ) {
-      console.log("!! Las opciones válidas son DAM o DAW");
+      console.log("\n!! Las opciones válidas son DAM o DAW");
       continue;
     } else {
       datosInsercion.push(nuevo_especialidad);
@@ -255,13 +262,13 @@ async function formularioInsercion() {
     nuevo_curso = nuevo_curso.toLowerCase();
 
     if (nuevo_curso.trim() == "") {
-      console.log("!! El campo no puede quedar vacío");
+      console.log("\n!! El campo no puede quedar vacío");
       continue;
     } else if (
       nuevo_curso.trim() != "primero" &&
       nuevo_curso.trim() != "segundo"
     ) {
-      console.log("!! Las opciones válidas son primero o segundo");
+      console.log("\n!! Las opciones válidas son primero o segundo");
       continue;
     } else {
       datosInsercion.push(nuevo_curso);
@@ -301,7 +308,7 @@ async function formularioInsercion() {
     }
 
     if (typeof nuevo_pagado != "boolean") {
-      console.log("!! No es una respuesta válida");
+      console.log("\n!! No es una respuesta válida");
       continue;
     } else {
       datosInsercion.push(nuevo_pagado);
@@ -339,7 +346,7 @@ async function insertarAlumno(
     (error, results) => {
       if (error) {
         console.log(error);
-        console.log("!! Ha ocurrido un error");
+        console.log("\n!! Ha ocurrido un error");
       } else {
         console.log("Los datos se han introducido con éxito");
       }
@@ -369,7 +376,7 @@ async function confirmarAccion(mensaje) {
     return false;
   } else {
     console.log(
-      "!! No se reconoce la opción. La acción se va a cancelar por defecto",
+      "\n!! No se reconoce la opción. La acción se va a cancelar por defecto",
     );
     return false;
   }
@@ -382,9 +389,9 @@ async function borrarAlumno(dni) {
     (error, results) => {
       if (error) {
         console.log(error);
-        console.log("!! Ha ocurrido un error");
+        console.log("\n!! Ha ocurrido un error");
       } else {
-        console.log("El alumno ha sido borrado de la base de datos");
+        console.log("\nEl alumno ha sido borrado de la base de datos");
       }
     },
   );
@@ -398,9 +405,9 @@ async function actualizarAlumno(campo, valor, dni) {
     (error, results) => {
       if (error) {
         console.log(error);
-        console.log("!! Ha ocurrido un error");
+        console.log("\n!! Ha ocurrido un error");
       } else {
-        console.log(`El campo de ${campo} del alumno se ha actualizado`);
+        console.log(`\nEl campo de ${campo} del alumno se ha actualizado`);
       }
     },
   );
@@ -480,9 +487,10 @@ async function menuPrincipal() {
           await insertarAlumno(...datosInsercion);
         } catch (error) {
           console.log(error);
-          console.log("!! Se ha producido un error");
+          console.log("\n!! Se ha producido un error");
+        } finally {
+          break;
         }
-        break;
 
       case "2":
         // borrar alumno, por dni, confirmar borrado
@@ -490,6 +498,9 @@ async function menuPrincipal() {
           const borrar_dni = await input(
             '\nIntroduce el dni del alumno a borrar\n(Escribe "cancelar" para anular la acción)\n> ',
           );
+          if (!comprobarFormatoDNI(borrar_dni)) {
+            break;
+          }
           if (borrar_dni == "cancelar") {
             break;
           }
@@ -505,65 +516,143 @@ async function menuPrincipal() {
           }
         } catch (error) {
           console.log(error);
-          console.log("!! Se ha producido un error");
+          console.log("\n!! Se ha producido un error");
+        } finally {
+          break;
         }
-        break;
 
       case "3":
         // editar alumno, por dni, pedir y cambiar campos o meter todos los campos, confirmar edición
-        const editar_dni = await input(
-          'Introduce el dni del alumno a editar\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
-        if (editar_dni == "cancelar") {
+        try {
+          const editar_dni = await input(
+            '\nIntroduce el dni del alumno a editar\n(Escribe "cancelar" para anular la acción)\n> ',
+          );
+          if (!comprobarFormatoDNI(editar_dni)) {
+            break;
+          }
+          if (editar_dni == "cancelar") {
+            break;
+          }
+
+          const alumno_editado = await selectPorFiltro("DNI", editar_dni);
+          mostrarAlumno(alumno_editado[0]);
+
+          const editar_campo = await input(
+            '\nIntroduce el campo a editar\n(Escribe "cancelar" para anular la acción)\n> ',
+          );
+          if (editar_campo == "cancelar") {
+            break;
+          }
+
+          const editar_valor = await input(
+            '\nIntroduce el nuevo valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
+          );
+          if (editar_valor == "cancelar") {
+            break;
+          }
+
+          if (await confirmarAccion("\n¿Confirmar la edición del alumno?")) {
+            await actualizarAlumno(editar_campo, editar_valor, editar_dni);
+          }
+        } catch (error) {
+          console.log(error);
+          console.log("\n!! Se ha producido un error");
+        } finally {
           break;
         }
-
-        const alumno_editado = await selectPorFiltro("DNI", editar_dni);
-        mostrarAlumno(alumno_editado[0]);
-
-        const editar_campo = await input(
-          'Introduce el campo a editar\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
-        if (editar_campo == "cancelar") {
-          break;
-        }
-
-        const editar_valor = await input(
-          'Introduce el nuevo valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
-        if (editar_valor == "cancelar") {
-          break;
-        }
-
-        await actualizarAlumno(editar_campo, editar_valor, editar_dni);
-        break;
 
       case "4":
         // listar, ordenada por ap1 ap2 nombre
-        const lista_completa = await selectAllAlumnos();
-        console.log("\nLista completa de todos los alumnos: ");
-        for (let alumno of lista_completa) {
-          mostrarAlumno(alumno);
+        try {
+          const lista_completa = await selectAllAlumnos();
+          console.log("\nLista completa de todos los alumnos: ");
+          for (let alumno of lista_completa) {
+            mostrarAlumno(alumno);
+          }
+        } catch (error) {
+          console.log(error);
+          console.log("\n!! Se ha producido un error");
+        } finally {
+          break;
         }
-        break;
 
       case "5":
         // buscar, por filtro
-        const filtrar_campo = await input(
-          'Escribe el campo por el que quieres filtrar\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
-        const filtrar_valor = await input(
-          'Escribe el valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
-        );
+        try {
+          let filtrar_campo = await input(
+            "\nEscribe el número del campo por el que quieres filtrar" +
+              '\n(Escribe "cancelar" para anular la acción)\n' +
+              "\n1. DNI" +
+              "\n2. Nombre" +
+              "\n3. Primer apellido" +
+              "\n4. Segundo apellido" +
+              "\n5. Fecha de nacimiento" +
+              "\n6. Edad" +
+              "\n7. Especialidad" +
+              "\n8. Curso" +
+              "\n9. Estado de pago" +
+              "\n> ",
+          );
 
-        const alumnos_filtrados = await selectPorFiltro(
-          filtrar_campo,
-          filtrar_valor,
-        );
-        for (let alumno of alumnos_filtrados) {
-          mostrarAlumno(alumno);
+          switch (filtrar_campo) {
+            case "1":
+              filtrar_campo = "dni";
+              break;
+
+            case "2":
+              filtrar_campo = "nombre";
+              break;
+
+            case "3":
+              filtrar_campo = "apellido1";
+              break;
+
+            case "4":
+              filtrar_campo = "apellido2";
+              break;
+
+            case "5":
+              filtrar_campo = "fecha_nac";
+              break;
+
+            case "6":
+              filtrar_campo = "edad";
+              break;
+
+            case "7":
+              filtrar_campo = "especialidad";
+              break;
+
+            case "8":
+              filtrar_campo = "curso";
+              break;
+
+            case "9":
+              filtrar_campo = "pagado";
+              break;
+
+            default:
+              console.log("\n!! No es una opción válida");
+              break;
+          }
+
+          const filtrar_valor = await input(
+            '\nEscribe el valor del campo\n(Escribe "cancelar" para anular la acción)\n> ',
+          );
+
+          const alumnos_filtrados = await selectPorFiltro(
+            filtrar_campo,
+            filtrar_valor,
+          );
+          for (let alumno of alumnos_filtrados) {
+            mostrarAlumno(alumno);
+          }
+        } catch (error) {
+          console.log(error);
+          console.log("\n!! Se ha producido un error");
+        } finally {
+          break;
         }
-        break;
 
       case "6":
         // salir
@@ -572,6 +661,7 @@ async function menuPrincipal() {
         break;
 
       default:
+        console.log("\n!! No es una opción válida");
         break;
     }
   }
