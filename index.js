@@ -20,8 +20,8 @@ const connection = mysql.createConnection({
   database: "practicaalumnos",
 });
 
-//1 -insertar alumno, confirmar inserción
-async function insertarAlumno(
+//1 insertar alumno, confirmar inserción
+export async function insertarAlumno(
   dni,
   nombre,
   apellido1,
@@ -55,8 +55,8 @@ async function insertarAlumno(
   );
 }
 
-//2 -borrar alumno, por dni, confirmar borrado
-async function borrarAlumno(dni) {
+//2 borrar alumno, por dni, confirmar borrado
+export async function borrarAlumno(dni) {
   await connection.query(
     "DELETE FROM Alumnos WHERE dni = ?",
     [dni],
@@ -70,8 +70,8 @@ async function borrarAlumno(dni) {
   );
 }
 
-//3 -editar alumno, por dni, pedir y cambiar campos o meter todos los campos, confirmar edición
-async function actualizarAlumno(campo, valor, dni) {
+//3 editar alumno, por dni, pedir y cambiar campos o meter todos los campos, confirmar edición
+export async function actualizarAlumno(campo, valor, dni) {
   await connection.query(
     "UPDATE Alumnos SET ?? = ? WHERE dni = ?",
     [campo, valor, dni],
@@ -85,7 +85,7 @@ async function actualizarAlumno(campo, valor, dni) {
   );
 }
 
-//4 -listar, ordenada por ap1 ap2 nombre
+//4 listar, ordenada por ap1 ap2 nombre
 function mostrarAlumno(alumno) {
   const fecha = dt
     .fromFormat(alumno.fecha_nac.toString().substring(4, 15), "MMM dd yyyy")
@@ -101,41 +101,40 @@ function mostrarAlumno(alumno) {
   );
 }
 
-async function selectAllAlumnos() {
-  await connection.query(
-    "SELECT * FROM Alumnos ORDER BY apellido1, apellido2, nombre",
-    (error, results) => {
-      if (error) {
-        console.log(error);
-      }
+export function selectAllAlumnos() {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM Alumnos ORDER BY apellido1, apellido2, nombre",
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
 
-      for (let alumno of results) {
-        mostrarAlumno(alumno);
-      }
-    },
-  );
+        resolve(results);
+      },
+    );
+  });
 }
 
-//5 -buscar, por filtro
-async function selectPorFiltro(campo, valor) {
-  await connection.query(
-    "SELECT * FROM Alumnos WHERE ?? = ? ORDER BY apellido1, apellido2, nombre",
-    [campo, valor],
-    (error, results) => {
-      if (error) {
-        console.log(error);
-      }
+//5 buscar, por filtro
+export function selectPorFiltro(campo, valor) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM Alumnos WHERE ?? = ? ORDER BY apellido1, apellido2, nombre",
+      [campo, valor],
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
 
-      for (let alumno of results) {
-        mostrarAlumno(alumno);
-      }
-    },
-  );
+        resolve(results);
+      },
+    );
+  });
 }
 
 async function menuPrincipal() {
   let run = true;
-  await connection.connect();
 
   while (run) {
     const opcion = await input(
@@ -151,14 +150,14 @@ async function menuPrincipal() {
     switch (opcion) {
       case "1":
         // insertar alumno, confirmar inserción
-        const nuevo_dni = await input("dni ");
-        const nuevo_nombre = await input("nombre ");
-        const nuevo_apellido1 = await input("apellido1 ");
-        const nuevo_apellido2 = await input("apellido2 ");
-        const nuevo_fecha_nac = await input("fecha ");
-        const nuevo_especialidad = await input("especialidad ");
-        const nuevo_curso = await input("curso ");
-        let nuevo_pagado = await input("pagado s/n ");
+        const nuevo_dni = await input("dni (12345678X)\n> ");
+        const nuevo_nombre = await input("nombre\n> ");
+        const nuevo_apellido1 = await input("apellido1\n> ");
+        const nuevo_apellido2 = await input("apellido2\n> ");
+        const nuevo_fecha_nac = await input("fecha (aaaa-mm-dd)\n> ");
+        const nuevo_especialidad = await input("especialidad (DAM o DAW)\n> ");
+        const nuevo_curso = await input("curso (primero o segundo)\n> ");
+        let nuevo_pagado = await input("pagado (s/n)\n> ");
         if (nuevo_pagado.toLowerCase() == "s") {
           nuevo_pagado = true;
         } else if (nuevo_pagado.toLowerCase() == "n") {
@@ -184,43 +183,51 @@ async function menuPrincipal() {
 
       case "2":
         // borrar alumno, por dni, confirmar borrado
-        const borrar_dni = await input("dni ");
+        const borrar_dni = await input("dni a borrar\n> ");
         await borrarAlumno(borrar_dni);
         break;
 
       case "3":
         // editar alumno, por dni, pedir y cambiar campos o meter todos los campos, confirmar edición
-        const editar_campo = await input("campo ");
-        const editar_valor = await input("valor ");
-        const editar_dni = await input("dni ");
+        const editar_campo = await input("campo a editar\n> ");
+        const editar_valor = await input("valor nuevo\n> ");
+        const editar_dni = await input("dni a editar\n> ");
 
         await actualizarAlumno(editar_campo, editar_valor, editar_dni);
         break;
 
       case "4":
         // listar, ordenada por ap1 ap2 nombre
-        await selectAllAlumnos();
+        const listaCompleta = await selectAllAlumnos();
+        for (let alumno of listaCompleta) {
+          mostrarAlumno(alumno);
+        }
         break;
 
       case "5":
         // buscar, por filtro
-        const filtrar_campo = await input("campo ");
-        const filtrar_valor = await input("valor ");
+        const filtrar_campo = await input("campo a filtrar\n> ");
+        const filtrar_valor = await input("valor del campo\n> ");
 
-        await selectPorFiltro(filtrar_campo, filtrar_valor);
+        const alumnosFiltrados = await selectPorFiltro(
+          filtrar_campo,
+          filtrar_valor,
+        );
+        for (let alumno of alumnosFiltrados) {
+          mostrarAlumno(alumno);
+        }
         break;
 
       case "6":
         // salir
         run = false;
+        connection.end();
         break;
 
       default:
         break;
     }
   }
-
-  await connection.end();
 }
 
 await menuPrincipal();
